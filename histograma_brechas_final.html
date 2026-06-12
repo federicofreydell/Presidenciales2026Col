@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histograma de brechas — Colombia 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0e0c;--paper:#f4efe4;--paper2:#ebe4d6;--rule:#c5b99a;
+  --upset:#c0392b;--hold:#2c5f8a;--col:#1e5c3a;
+  --mono:'IBM Plex Mono',monospace;--serif:'Playfair Display',Georgia,serif;--sans:'IBM Plex Sans',sans-serif;
+}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);padding:2.5rem 2rem 5rem;max-width:920px;margin:0 auto;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,0.025) 39px,rgba(0,0,0,0.025) 40px);pointer-events:none;z-index:0;}
+.z{position:relative;z-index:1;}
+
+.masthead{border-top:4px double var(--ink);border-bottom:1px solid var(--rule);padding:1.5rem 0 1.25rem;margin-bottom:2rem;}
+.kicker{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#888;margin-bottom:.5rem;}
+h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,44px);font-weight:900;line-height:1.04;margin-bottom:.5rem;letter-spacing:-.02em;}
+h1 em{font-style:italic;}
+.deck{font-size:13px;color:#555;max-width:660px;line-height:1.7;}
+
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin:1.5rem 0 2rem;}
+.stat{flex:1;min-width:120px;background:var(--paper2);border:1px solid var(--rule);border-radius:4px;padding:.875rem 1rem;}
+.stat .v{font-family:var(--serif);font-size:26px;font-weight:900;line-height:1;}
+.stat.up .v{color:var(--upset);} .stat.hold .v{color:var(--hold);} .stat.col .v{color:var(--col);}
+.stat .l{font-family:var(--mono);font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-top:5px;line-height:1.4;}
+
+.legend{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;font-size:12px;font-family:var(--mono);}
+.leg{display:flex;align-items:center;gap:6px;}
+.leg-sq{width:13px;height:13px;border-radius:2px;flex-shrink:0;}
+.leg-line{width:2px;height:18px;border-radius:1px;flex-shrink:0;}
+
+.canvas-wrap{position:relative;width:100%;margin-bottom:2rem;}
+
+.note{background:var(--paper2);border-left:4px solid var(--col);border-radius:4px;padding:1rem 1.25rem;margin:1rem 0 2rem;font-size:13px;line-height:1.7;color:#444;}
+.note strong{color:var(--col);}
+
+.footnote{font-size:11px;color:#999;border-top:1px solid var(--rule);padding-top:1rem;margin-top:1rem;font-family:var(--mono);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="z">
+
+<div class="masthead">
+  <p class="kicker">172 elecciones presidenciales con segunda vuelta · 1951–2026</p>
+  <h1>Remontadas y confirmaciones<br>según la brecha de <em>primera vuelta</em></h1>
+  <p class="deck">Distribución de elecciones con segunda vuelta según la distancia entre el 1.º y el 2.º lugar en primera vuelta. Rojo = el segundo lugar remontó y ganó. Azul = el líder confirmó. La línea verde marca el resultado real de Colombia 2026.</p>
+</div>
+
+<div class="stat-row">
+  <div class="stat hold"><div class="v">115</div><div class="l">Confirmaciones del líder · 66.9%</div></div>
+  <div class="stat up"><div class="v">57</div><div class="l">Remontadas del 2.º lugar · 33.1%</div></div>
+  <div class="stat col"><div class="v">2.84pp</div><div class="l">Brecha real Colombia 2026 (Abe vs Cep)</div></div>
+  <div class="stat"><div class="v" style="color:var(--ink);">46%</div><div class="l">Remontadas en la banda 2–4pp (13/28)</div></div>
+</div>
+
+<p style="font-family:var(--serif);font-size:18px;font-weight:700;margin:1rem 0 .3rem;padding-bottom:.35rem;border-bottom:1px solid var(--rule);">Histograma de brechas</p>
+<p style="font-size:12px;color:#666;font-style:italic;margin-bottom:1.25rem;">Cada barra es un intervalo de 2pp. La altura total es el número de elecciones; el color muestra cuántas terminaron en remontada o confirmación.</p>
+
+<div class="legend">
+  <div class="leg"><div class="leg-sq" style="background:rgba(192,57,43,0.82);"></div><span>Remontada — el 2.º lugar gana</span></div>
+  <div class="leg"><div class="leg-sq" style="background:rgba(44,95,138,0.72);"></div><span>El líder confirma</span></div>
+  <div class="leg" style="margin-left:auto;"><div class="leg-line" style="background:var(--col);"></div><span>Colombia 2026 — brecha 2.84pp</span></div>
+</div>
+
+<div class="canvas-wrap" style="height:400px;">
+  <canvas id="hist" role="img" aria-label="Histograma de brechas electorales. Las remontadas se concentran en brechas pequeñas; por encima de 22pp no hay ninguna remontada en la historia."></canvas>
+</div>
+
+<div class="note">
+  Colombia 2026 cayó en la banda <strong>2–4pp</strong>, donde históricamente el 46% de las elecciones terminan en remontada — casi una moneda al aire. Pero Abelardo de la Espriella, que ganó la primera vuelta por 2.84pp, parte como favorito: la estructura del voto disponible (Paloma Valencia, mayoritariamente de derecha) favorece su consolidación en segunda vuelta, a diferencia de los casos donde el tercer lugar es ideológicamente afín al segundo.
+</div>
+
+<p class="footnote">
+  N=172 elecciones presidenciales con segunda vuelta en democracias y semidemocracia, 1951–2026. Brecha = distancia en puntos porcentuales entre el 1.º y 2.º lugar en primera vuelta. Remontada = el candidato que quedó 2.º en primera vuelta gana la segunda. Por encima de una brecha de 22pp no hay ninguna remontada registrada en el conjunto de datos. Resultado de Colombia 2026: Abelardo de la Espriella 43.74% vs Iván Cepeda 40.90% (Registraduría Nacional del Estado Civil).
+</p>
+
+</div>
+
+<script>
+const textCol='#5f5e5a', gridCol='rgba(0,0,0,0.07)';
+const UPSET='rgba(192,57,43,0.82)', HOLD='rgba(44,95,138,0.72)', COL='#1e5c3a';
+
+const bins=['0–2','2–4','4–6','6–8','8–10','10–12','12–14','14–16','16–18','18–20','20–22','22–24','24–26','26–28','28–30','30–32','32+'];
+const upsets=[12,13,6,9,2,8,2,1,1,2,1,0,0,0,0,0,0];
+const holds =[13,15,14,9,10,8,9,10,9,4,4,3,3,1,1,1,1];
+
+new Chart(document.getElementById('hist'),{
+  type:'bar',
+  data:{labels:bins,datasets:[
+    {label:'Remontada',data:upsets,backgroundColor:UPSET,borderColor:'rgba(192,57,43,0.95)',borderWidth:1,borderRadius:3,borderSkipped:false,stack:'s'},
+    {label:'Confirma',data:holds,backgroundColor:HOLD,borderColor:'rgba(44,95,138,0.9)',borderWidth:1,borderRadius:3,borderSkipped:false,stack:'s'},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{backgroundColor:'#0f0e0c',
+        titleFont:{family:"'IBM Plex Mono'",size:11},bodyFont:{family:"'IBM Plex Mono'",size:11},
+        callbacks:{
+          title:ctx=>`Brecha: ${bins[ctx[0].dataIndex]}pp`,
+          label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y} elecciones`,
+          afterBody:ctx=>{const i=ctx[0].dataIndex,u=upsets[i],t=u+holds[i];return `Tasa de remontada: ${t>0?(u/t*100).toFixed(0):0}% (${u}/${t})`;}
+        }
+      }
+    },
+    scales:{
+      x:{stacked:true,title:{display:true,text:'Brecha entre 1.º y 2.º lugar en 1.ª vuelta (pp)',color:textCol,font:{size:12,family:"'IBM Plex Sans'"}},ticks:{color:textCol,font:{size:10,family:"'IBM Plex Mono'"}},grid:{display:false}},
+      y:{stacked:true,title:{display:true,text:'número de elecciones',color:textCol,font:{size:12,family:"'IBM Plex Sans'"}},ticks:{color:textCol,font:{size:11,family:"'IBM Plex Mono'"}},grid:{color:gridCol}}
+    }
+  },
+  plugins:[{
+    id:'colombia',
+    afterDraw(chart){
+      const {ctx,chartArea}=chart;
+      const binW=(chartArea.right-chartArea.left)/bins.length;
+      // 2.84pp → within bin index 1 (2-4), at fraction 0.42
+      const x=chartArea.left + (1 + 0.42)*binW;
+      ctx.save();
+      ctx.strokeStyle=COL;ctx.lineWidth=3;ctx.setLineDash([6,3]);
+      ctx.beginPath();ctx.moveTo(x,chartArea.top);ctx.lineTo(x,chartArea.bottom);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=COL;ctx.font=`700 12px 'IBM Plex Mono'`;ctx.textAlign='left';
+      ctx.fillText('Colombia 2026',x+7,chartArea.top+15);
+      ctx.font=`500 10px 'IBM Plex Mono'`;
+      ctx.fillText('brecha 2.84pp',x+7,chartArea.top+29);
+      ctx.fillText('Abe 43.74 / Cep 40.90',x+7,chartArea.top+41);
+      ctx.restore();
+    }
+  }]
+});
+</script>
+</body>
+</html>

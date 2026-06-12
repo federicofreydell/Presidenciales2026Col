@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sankey: Gran Consulta a Presidencial 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#23201c;--muted:#6f685e;--line:#e4e4e4;--card:#f7f7f5}
+*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font-family:'DM Mono',monospace;font-size:13px;line-height:1.55}
+.wrap{max-width:980px;margin:0 auto;padding:22px 14px 60px}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(19px,4.5vw,26px);font-weight:400;margin:0 0 4px}
+h2{font-family:'DM Serif Display',serif;font-size:clamp(15px,3.8vw,19px);font-weight:400;margin:22px 0 7px}
+.byline{font-size:10px;color:var(--muted);margin:0 0 14px;line-height:1.5}
+#sankey{width:100%;height:66vh;min-height:470px}
+.finding{background:var(--card);border-left:3px solid var(--ink);padding:11px 14px;margin:14px 0;border-radius:0 3px 3px 0;font-size:12px}
+.finding b{font-family:'DM Serif Display',serif;font-weight:400;font-size:14px;display:block;margin-bottom:3px}
+.key{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;font-size:11px}
+.key span{display:flex;align-items:center;gap:6px}
+.sw{width:26px;height:12px;border-radius:2px;display:inline-block}
+p{font-size:12px;margin:0 0 10px}
+.note{font-size:10px;color:var(--muted);line-height:1.55}
+.nav{font-size:11px;margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.nav a{color:#1565C0;text-decoration:none}
+@media(max-width:600px){#sankey{height:80vh}}
+</style></head><body><div class="wrap">
+<h1>&iquest;A d&oacute;nde fue el electorado de la Gran Consulta?</h1>
+<p class="byline">Estimaci&oacute;n ecol&oacute;gica con gradiente de confianza &middot; 9.341 puestos &middot; 8 candidatos &middot; votos en miles</p>
+<div id="sankey"></div>
+<div class="key">
+<span><span class="sw" style="background:rgba(218,160,109,0.55)"></span> n&uacute;cleo robusto (NNLS conjunto)</span>
+<span><span class="sw" style="background:rgba(218,160,109,0.17)"></span> estimaci&oacute;n probabil&iacute;stica</span>
+<span><span class="sw" style="background:rgba(207,202,191,0.45)"></span> no rastreable</span>
+</div>
+<div class="finding"><b>Una sola cinta, dos niveles de certeza</b>
+Cada flujo se divide en lo que el modelo atribuye con <b>confianza</b> (cinta s&oacute;lida) y lo que <b>estima</b> al repartir el voto que la colinealidad dej&oacute; sin asignar (cinta p&aacute;lida). As&iacute; el "no rastreable" se reduce al m&iacute;nimo (~15%) sin fingir certeza donde no la hay. Ejemplo: el destino de <b>Pe&ntilde;alosa</b> es casi todo estimaci&oacute;n p&aacute;lida (su voto del norte de Bogot&aacute; es indistinguible del de Oviedo y C&aacute;rdenas); el de <b>Paloma a de la Espriella</b> y <b>Oviedo a Fajardo</b> es n&uacute;cleo s&oacute;lido.</div>
+<div class="finding"><b>El patr&oacute;n, le&iacute;do con esa cautela</b>
+Paloma gan&oacute; la consulta con el voto uribista, 86% a de la Espriella (s&oacute;lido). Casi todos los dem&aacute;s tambi&eacute;n se inclinaron a la derecha dura. Las excepciones: Oviedo (44% a Fajardo, desbord&oacute; su propia f&oacute;rmula) y C&aacute;rdenas (56% a Valencia). El segundo destino del ala tecn&oacute;crata fue Valencia, la f&oacute;rmula Paloma-Oviedo.</div>
+<h2>&iquest;C&oacute;mo se lee un Sankey?</h2>
+<p>Flujos entre estados: or&iacute;genes a la izquierda (altura proporcional a votos de consulta), destinos a la derecha, grosor proporcional a votos estimados. Toca una cinta para ver la cifra. Aqu&iacute;, adem&aacute;s, la <b>opacidad</b> codifica la confianza: s&oacute;lido = atribuci&oacute;n robusta, p&aacute;lido = estimaci&oacute;n.</p>
+<p class="note"><b>M&eacute;todo:</b> el n&uacute;cleo s&oacute;lido proviene del NNLS conjunto regional (controla por todos los candidatos, con Bogot&aacute; desagregada). El voto que la colinealidad deja sin atribuir se reparte con el patr&oacute;n bivariado de cada candidato &mdash; esa es la capa p&aacute;lida. Solo queda como "no rastreable" lo que ni el bivariado ubica. Cepeda=0 (ning&uacute;n candidato de derecha-centro aliment&oacute; la izquierda). Magnitudes acotadas a totales presidenciales reales (la consulta explica &le;95% de cualquier candidato). Inferencia ecol&oacute;gica, transferencias agregadas, no padr&oacute;n individual.</p>
+<div class="nav"><b>Serie:</b> <a href="gran_consulta_index.html">portada</a> &middot; este Sankey &middot; <a href="gc_correlaciones.html">correlaciones</a> &middot; <a href="gc_scatters.html">scatters</a> &middot; <a href="gc_recalculo.html">matriz</a></div>
+<script>
+Plotly.newPlot('sankey',[{type:'sankey',orientation:'h',
+ node:{label:["Paloma Valencia (~2800k, GANADORA → candidata)", "Oviedo (1020k)", "Galán (260k)", "Pinzón (235k)", "Peñalosa (112k)", "Dávila (165k)", "Luna (65k)", "Cárdenas (46k)", "Valencia", "Fajardo", "Claudia López", "de la Espriella", "No rastreable"],color:["#1565C0", "#00796B", "#5C6BC0", "#3949AB", "#7E57C2", "#C2185B", "#8D6E63", "#455A64", "#1565C0", "#8A9A5B", "#B71C1C", "#DAA06D", "#cfcabf"],pad:13,thickness:16,line:{color:'#fff',width:1}},
+ link:{source:[0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7],target:[11, 8, 12, 11, 11, 8, 8, 9, 10, 12, 11, 8, 9, 10, 10, 12, 11, 11, 8, 12, 11, 8, 12, 11, 10, 12, 11, 8, 9, 8, 9],value:[2411, 348, 39, 160, 71, 42, 34, 461, 11, 238, 60, 15, 13, 11, 22, 131, 123, 43, 34, 17, 53, 21, 16, 111, 17, 24, 16, 28, 13, 26, 10],color:["rgba(218,160,109,0.55)", "rgba(21,101,192,0.55)", "rgba(207,202,191,0.45)", "rgba(218,160,109,0.55)", "rgba(218,160,109,0.17)", "rgba(21,101,192,0.55)", "rgba(21,101,192,0.17)", "rgba(138,154,91,0.55)", "rgba(183,28,28,0.17)", "rgba(207,202,191,0.45)", "rgba(218,160,109,0.55)", "rgba(21,101,192,0.55)", "rgba(138,154,91,0.55)", "rgba(183,28,28,0.55)", "rgba(183,28,28,0.17)", "rgba(207,202,191,0.45)", "rgba(218,160,109,0.55)", "rgba(218,160,109,0.17)", "rgba(21,101,192,0.55)", "rgba(207,202,191,0.45)", "rgba(218,160,109,0.17)", "rgba(21,101,192,0.17)", "rgba(207,202,191,0.45)", "rgba(218,160,109,0.55)", "rgba(183,28,28,0.17)", "rgba(207,202,191,0.45)", "rgba(218,160,109,0.55)", "rgba(21,101,192,0.55)", "rgba(138,154,91,0.55)", "rgba(21,101,192,0.55)", "rgba(138,154,91,0.55)"]}}],
+ {font:{family:'DM Mono, monospace',size:11,color:'#23201c'},paper_bgcolor:'#fff',
+  margin:{l:6,r:6,t:8,b:8}},{displayModeBar:false,responsive:true});
+</script></div></body></html>

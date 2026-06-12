@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colombia 2026 en el panorama global de segundas vueltas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0e0c;--paper:#f4efe4;--paper2:#ebe4d6;--rule:#c5b99a;
+  --abe:#1e5c3a;--cep:#7a1515;
+  --upset:#c0392b;--hold:#2c5f8a;
+  --latam:#b5651d;--europa:#4a6fa5;--africa:#5c8a3a;--asia:#8a5c9a;
+  --pal:#2d547a;--faj:#7a5c1e;--cla:#5c3d7a;
+  --mono:'IBM Plex Mono',monospace;--serif:'Playfair Display',Georgia,serif;--sans:'IBM Plex Sans',sans-serif;
+}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);padding:2.5rem 2rem 5rem;max-width:1000px;margin:0 auto;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,0.025) 39px,rgba(0,0,0,0.025) 40px);pointer-events:none;z-index:0;}
+.z{position:relative;z-index:1;}
+
+.masthead{border-top:4px double var(--ink);border-bottom:1px solid var(--rule);padding:1.5rem 0 1.25rem;margin-bottom:2rem;}
+.kicker{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#888;margin-bottom:.5rem;}
+h1{font-family:var(--serif);font-size:clamp(26px,4.5vw,48px);font-weight:900;line-height:1.02;margin-bottom:.5rem;letter-spacing:-.02em;}
+h1 em{font-style:italic;}
+.deck{font-size:13px;color:#555;max-width:680px;line-height:1.7;}
+
+.sh{font-family:var(--serif);font-size:18px;font-weight:700;margin:2.5rem 0 .3rem;padding-bottom:.35rem;border-bottom:1px solid var(--rule);}
+.sh-sub{font-size:12px;color:#666;font-style:italic;margin-bottom:1.25rem;}
+
+.legend{display:flex;gap:1.1rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;font-size:11px;font-family:var(--mono);}
+.leg{display:flex;align-items:center;gap:5px;}
+.leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.leg-sq{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
+
+.canvas-wrap{position:relative;width:100%;margin-bottom:2rem;}
+
+/* Region stat strip */
+.region-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:1rem 0 2rem;}
+.rc{background:var(--paper2);border:1px solid var(--rule);border-radius:4px;padding:.75rem .875rem;position:relative;overflow:hidden;}
+.rc::after{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;}
+.rc.latam::after{background:var(--latam);} .rc.europa::after{background:var(--europa);}
+.rc.africa::after{background:var(--africa);} .rc.asia::after{background:var(--asia);}
+.rc .reg{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#888;}
+.rc .rate{font-family:var(--serif);font-size:24px;font-weight:900;line-height:1;margin-top:3px;}
+.rc .cnt{font-family:var(--mono);font-size:10px;color:#888;margin-top:2px;}
+
+/* Sankey-ish transition */
+.transition{display:grid;grid-template-columns:1fr 60px 1fr;gap:0;margin:1.5rem 0 2rem;align-items:stretch;}
+.trans-col{display:flex;flex-direction:column;gap:3px;}
+.trans-block{border-radius:3px;display:flex;align-items:center;padding:0 10px;font-family:var(--mono);font-size:10px;font-weight:500;color:#fff;position:relative;min-height:32px;}
+.trans-mid{display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:var(--mono);font-size:9px;color:#999;}
+.trans-right{justify-content:flex-end;text-align:right;}
+.trans-result{display:flex;flex-direction:column;gap:3px;justify-content:center;}
+.tr-final{border-radius:4px;padding:14px 14px;font-family:var(--mono);color:#fff;}
+.tr-final .big{font-family:var(--serif);font-size:30px;font-weight:900;line-height:1;}
+.tr-final .lab{font-size:10px;opacity:.85;margin-top:3px;}
+
+/* Colombia history table */
+.col-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);margin:1rem 0 2rem;}
+.col-table th{text-align:left;padding:6px 10px;border-bottom:1.5px solid var(--ink);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#555;font-weight:500;}
+.col-table td{padding:8px 10px;border-bottom:1px solid var(--rule);}
+.col-table tr:last-child td{border:none;}
+.col-table .upset{color:var(--upset);font-weight:600;}
+.col-table .hold{color:var(--hold);font-weight:600;}
+.col-table .now{background:rgba(30,92,58,0.08);font-weight:600;}
+
+.verdict{background:var(--ink);color:#f4efe4;border-radius:4px;padding:1.5rem 1.75rem;margin:1.5rem 0 2rem;}
+.verdict h2{font-family:var(--serif);font-size:21px;font-weight:900;margin-bottom:.6rem;line-height:1.25;}
+.verdict p{font-size:12px;line-height:1.8;opacity:.86;}
+.verdict .hl{color:#9FE1CB;font-weight:600;}
+
+.footnote{font-size:11px;color:#999;border-top:1px solid var(--rule);padding-top:1rem;margin-top:1rem;font-family:var(--mono);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="z">
+
+<div class="masthead">
+  <p class="kicker">172 elecciones presidenciales con segunda vuelta · 1951–2026 · El caso colombiano en perspectiva</p>
+  <h1>Colombia 2026 en el panorama<br>global de <em>segundas vueltas</em></h1>
+  <p class="deck">Cada punto es una elección con segunda vuelta en el mundo desde 1951. El eje horizontal mide la brecha de primera vuelta; el vertical, el margen final de la segunda. Colombia 2026 (brecha 2.84pp) cae en la zona más competitiva — pero la transición de votos define el desenlace.</p>
+</div>
+
+<!-- SCATTER GLOBAL -->
+<p class="sh">El universo de segundas vueltas — brecha de 1ª vs margen de 2ª</p>
+<p class="sh-sub">Rojo = el segundo lugar remontó y ganó. Azul = el líder confirmó. Cuanto más a la izquierda, más reñida la primera vuelta. Colombia 2026 está marcada en verde.</p>
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:rgba(192,57,43,0.7);"></div><span>Remontada (2.º gana)</span></div>
+  <div class="leg"><div class="leg-dot" style="background:rgba(44,95,138,0.55);"></div><span>El líder confirma</span></div>
+  <div class="leg" style="margin-left:auto;"><div class="leg-dot" style="background:#1e5c3a;width:14px;height:14px;"></div><span>Colombia 2026 (proyección)</span></div>
+</div>
+<div class="canvas-wrap" style="height:420px;">
+  <canvas id="scatterChart" role="img" aria-label="Dispersión de 172 elecciones por brecha de primera vuelta y margen de segunda vuelta"></canvas>
+</div>
+
+<!-- REGION RATES -->
+<p class="sh">Tasa de remontada por región</p>
+<p class="sh-sub">Latinoamérica y África tienen las tasas más altas de remontada. Pero la tasa regional no captura la estructura ideológica de cada caso.</p>
+<div class="region-strip">
+  <div class="rc africa"><div class="reg">África</div><div class="rate">38%</div><div class="cnt">3 de 8</div></div>
+  <div class="rc latam"><div class="reg">Latinoamérica</div><div class="rate">35%</div><div class="cnt">23 de 66</div></div>
+  <div class="rc europa"><div class="reg">Europa</div><div class="rate">33%</div><div class="cnt">30 de 92</div></div>
+  <div class="rc asia"><div class="reg">Asia</div><div class="rate">17%</div><div class="cnt">1 de 6</div></div>
+</div>
+
+<!-- TRANSICIÓN DE VOTOS -->
+<p class="sh">El detalle: transición de votos en Colombia 2026</p>
+<p class="sh-sub">De dónde viene cada voto en la segunda vuelta proyectada. Los bloques de la izquierda son los resultados de primera vuelta; las flechas muestran hacia dónde se transfieren según las tasas de La Silla Vacía.</p>
+
+<div class="transition">
+  <div class="trans-col">
+    <div class="trans-block" style="background:var(--abe);height:90px;">Abelardo 43.74%</div>
+    <div class="trans-block" style="background:var(--cep);height:84px;">Cepeda 40.90%</div>
+    <div class="trans-block" style="background:var(--pal);">Paloma 6.92%</div>
+    <div class="trans-block" style="background:var(--faj);">Fajardo 4.26%</div>
+    <div class="trans-block" style="background:var(--cla);height:24px;font-size:9px;">Claudia 0.95%</div>
+    <div class="trans-block" style="background:#777;">Otros/blanco 3.23%</div>
+  </div>
+  <div class="trans-mid">
+    <span>→</span>
+  </div>
+  <div class="trans-result">
+    <div class="tr-final" style="background:var(--abe);">
+      <div class="big">52.6%</div>
+      <div class="lab">ABELARDO · base 43.7 + Paloma 5.05 + Fajardo 1.62 + Claudia 0.24 + otros 1.94</div>
+    </div>
+    <div class="tr-final" style="background:var(--cep);">
+      <div class="big">47.4%</div>
+      <div class="lab">CEPEDA · base 40.9 + Paloma 1.87 + Fajardo 2.64 + Claudia 0.71 + otros 1.29</div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSITION DETAIL CHART -->
+<div class="canvas-wrap" style="height:300px;">
+  <canvas id="transChart" role="img" aria-label="Detalle de transferencia de cada bloque hacia Abelardo o Cepeda"></canvas>
+</div>
+
+<!-- COLOMBIA HISTORY -->
+<p class="sh">Colombia tiene historia de remontadas</p>
+<p class="sh-sub">En 6 segundas vueltas, el segundo lugar ganó dos veces (1998, 2014) — ambas con brechas pequeñas. 2014 es el precedente más cercano a la situación de Cepeda: brecha de 3.6pp.</p>
+<table class="col-table">
+  <thead>
+    <tr><th>Año</th><th>Brecha 1ª vuelta</th><th>¿Remontada?</th><th>Margen 2ª vuelta</th><th>Nota</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1994</td><td>0.3pp</td><td class="hold">No</td><td>2.1pp</td><td>Samper confirma sobre Pastrana</td></tr>
+    <tr><td>1998</td><td>0.3pp</td><td class="upset">Sí ✓</td><td>3.9pp</td><td>Pastrana remonta a Serpa</td></tr>
+    <tr><td>2010</td><td>25.2pp</td><td class="hold">No</td><td>42.1pp</td><td>Santos aplasta a Mockus</td></tr>
+    <tr><td>2014</td><td>3.6pp</td><td class="upset">Sí ✓</td><td>6.0pp</td><td>Santos remonta a Zuluaga ← precedente cercano</td></tr>
+    <tr><td>2018</td><td>14.3pp</td><td class="hold">No</td><td>12.3pp</td><td>Duque confirma sobre Petro</td></tr>
+    <tr><td>2022</td><td>12.2pp</td><td class="hold">No</td><td>3.1pp</td><td>Petro confirma sobre Rodolfo</td></tr>
+    <tr class="now"><td>2026</td><td>2.84pp</td><td style="color:#888;">¿?</td><td>proyectado +5.2pp Abe</td><td>Abelardo lidera; Cepeda intenta remontar</td></tr>
+  </tbody>
+</table>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <h2>Por qué la brecha pequeña no basta para Cepeda</h2>
+  <p>Colombia 2026 cae en la zona donde históricamente <span class="hl">el 46% de las elecciones terminan en remontada</span> (banda 2–4pp). Si solo importara la brecha, Cepeda tendría casi una moneda al aire. Pero el panorama global muestra que la remontada depende de la <span class="hl">estructura del pool disponible</span>, no solo de la distancia. Los casos de remontada exitosa (Perú 2016, Chile 2021, Ecuador 2021) compartían algo: el tercer y cuarto lugar eran ideológicamente afines al segundo. En Colombia 2026 ocurre lo contrario — el bloque más grande disponible (Paloma, 6.92%) es de derecha y va mayoritariamente a Abelardo. Por eso la transición de votos da <span class="hl">Abelardo 52.6% vs Cepeda 47.4%</span>, situando esta elección entre los casos donde el líder confirma pese a una primera vuelta reñida — como Colombia 1994, Francia 2012 o Polonia 2015.</p>
+</div>
+
+<p class="footnote">
+  Fuente: base de datos de 172 elecciones presidenciales con segunda vuelta en democracias y semidemocracia, 1951–2026. Eje X: brecha en puntos porcentuales entre 1.º y 2.º lugar en 1.ª vuelta. Eje Y: margen final de la 2.ª vuelta. Transición de votos Colombia 2026: tasas LSV (Paloma→Abe 73%, Fajardo→Cep 62%, Claudia→Cep 75%, Otros→Abe 60%). Resultados 1.ª vuelta: Registraduría Nacional del Estado Civil. La proyección de 2.ª vuelta (Abe 52.6% / Cep 47.4%) usa las tasas centrales de transferencia; el margen real dependerá de la movilización diferencial y de la consolidación del voto anti-Cepeda.
+</p>
+
+</div>
+
+<script>
+const textCol='#5f5e5a', gridCol='rgba(0,0,0,0.07)';
+
+// Scatter data: [gap, r2margin, upset, country, year]
+const data=[
+[12.2,3.1,0,"Colombia",2022],[14.3,12.3,0,"Colombia",2018],[3.6,6.0,1,"Colombia",2014],[25.2,42.1,0,"Colombia",2010],[0.3,3.9,1,"Colombia",1998],[0.3,2.1,0,"Colombia",1994],
+[5.2,1.8,0,"Brasil",2022],[16.8,10.3,0,"Brasil",2018],[8.0,3.3,0,"Brasil",2014],[14.3,12.1,0,"Brasil",2010],[7.0,21.7,0,"Brasil",2006],[23.2,22.5,0,"Brasil",2002],[12.4,6.1,0,"Brasil",1989],
+[6.8,11.3,1,"Argentina",2023],[2.9,2.7,1,"Argentina",2015],
+[2.9,16.3,1,"Chile",2025],[2.1,11.7,1,"Chile",2021],[13.9,9.2,0,"Chile",2017],[21.7,24.3,0,"Chile",2013],[14.5,3.2,0,"Chile",2009],[20.6,7.0,0,"Chile",2005],[0.4,2.6,0,"Chile",1999],
+[5.5,0.3,0,"Perú",2021],[18.8,0.2,1,"Perú",2016],[8.1,2.9,0,"Perú",2011],[6.3,5.3,1,"Perú",2006],[10.4,6.2,0,"Perú",2001],[9.6,48.7,0,"Perú",2000],[3.5,24.6,1,"Perú",1990],
+[17.0,3.9,0,"Uruguay",2024],[10.7,1.6,1,"Uruguay",2019],[16.9,13.0,0,"Uruguay",2014],[18.9,9.3,0,"Uruguay",2009],[7.3,8.3,1,"Uruguay",1999],
+[5.4,9.9,0,"Bolivia",2025],
+[0.2,11.3,0,"Ecuador",2025],[10.1,3.7,1,"Ecuador",2023],[13.0,4.7,1,"Ecuador",2021],[11.3,2.3,0,"Ecuador",2017],[4.0,13.3,1,"Ecuador",2006],[3.2,9.6,0,"Ecuador",2002],[8.3,2.3,0,"Ecuador",1998],[0.9,8.9,1,"Ecuador",1996],[6.8,14.6,0,"Ecuador",1992],[6.9,5.7,0,"Ecuador",1988],[1.5,3.1,1,"Ecuador",1984],[3.8,37.0,0,"Ecuador",1978],
+[10.5,5.6,1,"Costa Rica",2022],[3.4,21.2,1,"Costa Rica",2018],[0.9,55.5,0,"Costa Rica",2014],[7.5,15.2,0,"Costa Rica",2002],
+[10.0,0.2,0,"El Salvador",2014],[24.1,36.7,0,"El Salvador",1994],[13.6,7.2,0,"El Salvador",1984],
+[5.6,21.8,1,"Guatemala",2023],[11.6,15.9,1,"Guatemala",2019],[4.2,34.9,0,"Guatemala",2015],[13.4,7.5,0,"Guatemala",2011],[4.7,5.6,0,"Guatemala",2007],[8.0,8.3,0,"Guatemala",2003],[17.4,36.6,0,"Guatemala",1999],[14.5,2.4,0,"Guatemala",1995],[1.6,34.3,1,"Guatemala",1990],[18.4,36.7,0,"Guatemala",1985],
+[7.0,2.5,1,"Rep. Dominicana",1996],[9.5,35.1,1,"Haití",2011],
+[4.7,17.1,0,"Francia",2022],[2.7,32.2,0,"Francia",2017],[1.4,3.3,0,"Francia",2012],[5.3,6.1,0,"Francia",2007],[3.0,64.4,0,"Francia",2002],[2.5,5.3,1,"Francia",1995],[14.1,8.0,0,"Francia",1988],[2.5,3.5,1,"Francia",1981],[10.6,1.6,1,"Francia",1974],[21.1,16.4,0,"Francia",1969],[12.9,10.4,0,"Francia",1965],
+[1.1,3.4,0,"Egipto",2012],[2.8,45.4,0,"Túnez",2019],[6.0,11.4,0,"Túnez",2014],[1.2,0.5,1,"Ghana",2008],[3.6,13.8,0,"Ghana",2000],[5.5,23.9,0,"Ghana",1979],[8.2,31.6,1,"Senegal",2012],[10.3,17.0,1,"Senegal",2000],
+[13.7,7.6,1,"Austria",2016],[3.5,13.8,1,"Austria",1992],[6.0,7.8,0,"Austria",1986],[1.0,4.1,1,"Austria",1951],
+[0.4,16.6,0,"Chequia",2023],[12.0,2.7,0,"Chequia",2018],[0.8,9.6,0,"Chequia",2013],
+[1.8,1.8,1,"Polonia",2025],[13.0,2.1,0,"Polonia",2020],[1.0,3.1,0,"Polonia",2015],[5.1,6.0,0,"Polonia",2010],[3.2,8.1,1,"Polonia",2005],[2.0,3.4,0,"Polonia",1995],[16.9,48.5,0,"Polonia",1990],
+[20.0,7.2,1,"Rumania",2025],[15.6,31.8,0,"Rumania",2019],[10.1,8.9,1,"Rumania",2014],[1.3,0.7,0,"Rumania",2009],[7.0,2.5,1,"Rumania",2004],[8.0,33.7,0,"Rumania",1999],[4.0,8.8,1,"Rumania",1996],[16.1,22.9,0,"Rumania",1992],
+[14.3,48.8,0,"Ucrania",2019],[10.5,3.5,0,"Ucrania",2010],[0.7,7.9,0,"Ucrania",2004],[14.3,18.5,0,"Ucrania",1999],[7.2,7.1,1,"Ucrania",1994],
+[1.4,3.2,0,"Finlandia",2024],[18.2,25.2,0,"Finlandia",2012],[22.3,3.6,0,"Finlandia",2006],[5.7,3.3,0,"Finlandia",2000],[3.9,7.7,0,"Finlandia",1994],
+[9.6,11.8,0,"Sri Lanka",2024],[8.0,10.3,0,"Mongolia",2017],[7.0,21.2,0,"Indonesia",2004],[7.6,33.7,0,"Portugal",2026],[20.9,2.4,1,"Portugal",1986],[4.6,4.4,0,"Turquía",2023],
+[11.1,21.3,0,"Irlanda",2011],[15.9,16.4,0,"Irlanda",1997],[5.4,5.4,1,"Irlanda",1990],
+[16.5,10.7,0,"Moldavia",2024],[3.5,15.4,0,"Moldavia",2020],[9.3,4.2,0,"Moldavia",2016],
+[26.6,34.9,0,"Bulgaria",2021],[3.5,23.2,0,"Bulgaria",2016],[11.1,5.2,0,"Bulgaria",2011],[1.4,8.3,0,"Bulgaria",2001],[17.1,18.4,0,"Bulgaria",1997],[14.2,5.7,0,"Bulgaria",1992],
+[0.2,2.3,1,"Serbia",2012],[4.6,2.3,1,"Serbia",2008],[3.2,7.9,1,"Serbia",2004],[3.6,36.8,0,"Serbia",2002],[11.5,21.7,0,"Serbia",1997],
+[30.1,49.4,0,"Croacia",2024],[2.9,5.3,0,"Croacia",2019],[1.3,1.5,1,"Croacia",2014],[17.6,20.5,0,"Croacia",2009],[28.6,31.3,0,"Croacia",2005],[13.4,12.0,0,"Croacia",2000],
+[6.4,17.8,1,"Montenegro",2023],
+[7.1,7.7,1,"Eslovenia",2022],[22.4,6.2,0,"Eslovenia",2017],[4.0,34.7,0,"Eslovenia",2012],[4.3,36.1,0,"Eslovenia",2007],[13.6,13.2,0,"Eslovenia",2002],
+[5.5,6.2,1,"Eslovaquia",2024],[21.9,16.8,0,"Eslovaquia",2019],[4.0,18.8,1,"Eslovaquia",2014],[8.7,11.1,0,"Eslovaquia",2009],[10.4,19.8,1,"Eslovaquia",2004],[10.1,14.4,0,"Eslovaquia",1999],
+[24.4,51.1,0,"Lituania",2024],[0.4,33.1,1,"Lituania",2019],[32.8,18.2,0,"Lituania",2014],[9.9,5.3,0,"Lituania",2004],[15.9,9.4,1,"Lituania",2002],[17.4,0.7,1,"Lituania",1999],
+[2.4,3.8,0,"Chipre",2023],[5.3,12.0,0,"Chipre",2018],[18.6,15.0,0,"Chipre",2013],[0.2,6.7,1,"Chipre",2008],[0.5,1.6,1,"Chipre",1998],[7.5,0.6,1,"Chipre",1993],[3.2,3.2,1,"Chipre",1988],
+[3.3,13.7,0,"Rusia",1996],
+];
+
+const upsetPts = data.filter(d=>d[2]===1).map(d=>({x:d[0],y:d[1],c:d[3],yr:d[4]}));
+const holdPts  = data.filter(d=>d[2]===0).map(d=>({x:d[0],y:d[1],c:d[3],yr:d[4]}));
+const colombia = [{x:2.84,y:5.2,c:"Colombia",yr:2026}];
+
+new Chart(document.getElementById('scatterChart'),{
+  type:'scatter',
+  data:{datasets:[
+    {label:'El líder confirma',data:holdPts,backgroundColor:'rgba(44,95,138,0.5)',borderColor:'rgba(44,95,138,0.7)',borderWidth:0.5,pointRadius:4,pointHoverRadius:7},
+    {label:'Remontada',data:upsetPts,backgroundColor:'rgba(192,57,43,0.65)',borderColor:'rgba(192,57,43,0.85)',borderWidth:0.5,pointRadius:4,pointHoverRadius:7},
+    {label:'Colombia 2026',data:colombia,backgroundColor:'#1e5c3a',borderColor:'#0f0e0c',borderWidth:2,pointRadius:9,pointHoverRadius:11,pointStyle:'rectRot'},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#0f0e0c',
+        titleFont:{family:"'IBM Plex Mono'",size:11},
+        bodyFont:{family:"'IBM Plex Mono'",size:10},
+        callbacks:{
+          title:ctx=>`${ctx[0].raw.c} ${ctx[0].raw.yr}`,
+          label:ctx=>`Brecha 1ª: ${ctx.parsed.x.toFixed(1)}pp · Margen 2ª: ${ctx.parsed.y.toFixed(1)}pp`
+        }
+      }
+    },
+    scales:{
+      x:{min:0,max:34,title:{display:true,text:'Brecha en 1.ª vuelta (pp) — más a la izquierda = más reñida',color:textCol,font:{size:12}},ticks:{color:textCol,font:{size:10,family:"'IBM Plex Mono'"},callback:v=>v+'pp'},grid:{color:gridCol}},
+      y:{min:0,max:66,title:{display:true,text:'Margen final en 2.ª vuelta (pp)',color:textCol,font:{size:12}},ticks:{color:textCol,font:{size:10,family:"'IBM Plex Mono'"},callback:v=>v+'pp'},grid:{color:gridCol}}
+    }
+  },
+  plugins:[{
+    id:'annotations',
+    afterDraw(chart){
+      const {ctx,scales}=chart;
+      // Colombia label
+      const cx=scales.x.getPixelForValue(2.84), cy=scales.y.getPixelForValue(5.2);
+      ctx.save();
+      ctx.fillStyle='#1e5c3a';ctx.font=`700 11px 'IBM Plex Mono'`;ctx.textAlign='left';
+      ctx.fillText('Colombia 2026',cx+12,cy+2);
+      ctx.font=`500 9px 'IBM Plex Mono'`;
+      ctx.fillText('brecha 2.84pp',cx+12,cy+14);
+      // Competitive zone shading hint
+      const x4=scales.x.getPixelForValue(4);
+      const xl=scales.x.getPixelForValue(0);
+      ctx.fillStyle='rgba(192,57,43,0.04)';
+      ctx.fillRect(xl,chart.chartArea.top,x4-xl,chart.chartArea.bottom-chart.chartArea.top);
+      ctx.strokeStyle='rgba(192,57,43,0.3)';ctx.setLineDash([4,3]);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x4,chart.chartArea.top);ctx.lineTo(x4,chart.chartArea.bottom);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(192,57,43,0.6)';ctx.font=`500 9px 'IBM Plex Mono'`;ctx.textAlign='center';
+      ctx.fillText('zona reñida (0–4pp): 46% remontadas',(xl+x4)/2+40,chart.chartArea.top+14);
+      ctx.restore();
+    }
+  }]
+});
+
+// Transition chart — each bloc, stacked toward Abe / Cep
+const blocs=['Paloma\n6.92%','Fajardo\n4.26%','Claudia\n0.95%','Otros/blanco\n3.23%'];
+const toAbe=[5.05,1.62,0.24,1.94];
+const toCep=[1.87,2.64,0.71,1.29];
+
+new Chart(document.getElementById('transChart'),{
+  type:'bar',
+  data:{labels:blocs,datasets:[
+    {label:'→ Abelardo',data:toAbe,backgroundColor:'rgba(30,92,58,0.82)',borderColor:'rgba(30,92,58,1)',borderWidth:1,borderRadius:3,borderSkipped:false},
+    {label:'→ Cepeda',data:toCep,backgroundColor:'rgba(122,21,21,0.78)',borderColor:'rgba(122,21,21,1)',borderWidth:1,borderRadius:3,borderSkipped:false},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:true,position:'top',labels:{color:textCol,font:{size:11,family:"'IBM Plex Mono'"},boxWidth:10,padding:10}},
+      tooltip:{backgroundColor:'#0f0e0c',callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}pp`}}
+    },
+    scales:{
+      x:{ticks:{color:textCol,font:{size:10,family:"'IBM Plex Mono'"}},grid:{display:false}},
+      y:{title:{display:true,text:'puntos porcentuales transferidos',color:textCol,font:{size:11}},ticks:{color:textCol,font:{size:11,family:"'IBM Plex Mono'"},callback:v=>v+'pp'},grid:{color:gridCol}}
+    }
+  },
+  plugins:[{
+    id:'netLabels',
+    afterDatasetsDraw(chart){
+      const {ctx}=chart;
+      [toAbe,toCep].forEach((arr,di)=>{
+        arr.forEach((val,i)=>{
+          const meta=chart.getDatasetMeta(di).data[i];
+          ctx.save();
+          ctx.fillStyle=di===0?'#1e5c3a':'#7a1515';
+          ctx.font=`600 9px 'IBM Plex Mono'`;ctx.textAlign='center';
+          ctx.fillText(val.toFixed(1),meta.x,meta.y-5);
+          ctx.restore();
+        });
+      });
+    }
+  }]
+});
+</script>
+</body>
+</html>
